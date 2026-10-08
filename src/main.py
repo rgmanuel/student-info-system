@@ -1,5 +1,6 @@
 import logging
 import json
+import os
 
 from services.student_service import StudentService
 
@@ -13,6 +14,13 @@ except FileNotFoundError:
         "data_file": "data/students.json",
         "log_file": "logs/app.log"
     }
+
+
+# Make sure the log folder exists
+log_folder = os.path.dirname(config["log_file"])
+
+if log_folder:
+    os.makedirs(log_folder, exist_ok=True)
 
 
 # Logging setup
@@ -45,13 +53,24 @@ class StudentInformationSystem:
     def add_student(self):
         print("\n--- Add New Student ---")
 
-        name = input("Name: ")
-        email = input("Email: ")
-        course = input("Course: ")
-        year_level = input("Year Level: ")
+        name = input("Name: ").strip()
+        email = input("Email: ").strip()
+        course = input("Course: ").strip()
+        year_level = input("Year Level: ").strip()
 
+        # Check if all fields have information
         if not name or not email or not course or not year_level:
             print("Please fill in all fields.")
+            return
+
+        # Basic email validation
+        if "@" not in email:
+            print("Please enter a valid email address.")
+            return
+
+        # Make sure year level is a number
+        if not year_level.isdigit():
+            print("Year level must be a number.")
             return
 
         student_data = {
@@ -76,103 +95,159 @@ class StudentInformationSystem:
     def view_all_students(self):
         print("\n--- All Students ---")
 
-        students = self.student_service.get_all_students()
+        try:
+            students = self.student_service.get_all_students()
 
-        if not students:
-            print("No students found.")
-            return
+            if not students:
+                print("No students found.")
+                return
 
-        for student in students:
-            print("------------------------------")
-            print("ID:", student["student_id"])
-            print("Name:", student["name"])
-            print("Email:", student["email"])
-            print("Course:", student["course"])
-            print("Year Level:", student["year_level"])
+            for student in students:
+                print("------------------------------")
+                print("ID:", student["student_id"])
+                print("Name:", student["name"])
+                print("Email:", student["email"])
+                print("Course:", student["course"])
+                print("Year Level:", student["year_level"])
+
+        except Exception as e:
+            logger.error("Error viewing students: %s", e)
+            print("Something went wrong while loading students.")
 
     def view_student(self):
         print("\n--- View Student ---")
 
-        student_id = input("Enter Student ID: ")
+        student_id = input("Enter Student ID: ").strip()
 
-        student = self.student_service.get_student(student_id)
+        if not student_id:
+            print("Student ID cannot be empty.")
+            return
 
-        if student:
-            print("\nStudent Details")
-            print("------------------------------")
-            print("ID:", student["student_id"])
-            print("Name:", student["name"])
-            print("Email:", student["email"])
-            print("Course:", student["course"])
-            print("Year Level:", student["year_level"])
-        else:
-            print("Student not found.")
+        try:
+            student = self.student_service.get_student(student_id)
+
+            if student:
+                print("\nStudent Details")
+                print("------------------------------")
+                print("ID:", student["student_id"])
+                print("Name:", student["name"])
+                print("Email:", student["email"])
+                print("Course:", student["course"])
+                print("Year Level:", student["year_level"])
+            else:
+                print("Student not found.")
+
+        except Exception as e:
+            logger.error("Error finding student: %s", e)
+            print("Something went wrong while finding the student.")
 
     def update_student(self):
         print("\n--- Update Student ---")
 
-        student_id = input("Enter Student ID: ")
+        student_id = input("Enter Student ID: ").strip()
 
-        student = self.student_service.get_student(student_id)
-
-        if not student:
-            print("Student not found.")
+        if not student_id:
+            print("Student ID cannot be empty.")
             return
 
-        print("Press Enter if you want to keep the old value.")
+        try:
+            student = self.student_service.get_student(student_id)
 
-        name = input(f"Name ({student['name']}): ")
-        email = input(f"Email ({student['email']}): ")
-        course = input(f"Course ({student['course']}): ")
-        year_level = input(f"Year Level ({student['year_level']}): ")
+            if not student:
+                print("Student not found.")
+                return
 
-        update_data = {
-            "name": name if name else student["name"],
-            "email": email if email else student["email"],
-            "course": course if course else student["course"],
-            "year_level": year_level if year_level else student["year_level"]
-        }
+            print("Press Enter if you want to keep the old value.")
 
-        updated = self.student_service.update_student(
-            student_id,
-            update_data
-        )
+            name = input(f"Name ({student['name']}): ").strip()
+            email = input(f"Email ({student['email']}): ").strip()
+            course = input(f"Course ({student['course']}): ").strip()
+            year_level = input(
+                f"Year Level ({student['year_level']}): "
+            ).strip()
 
-        if updated:
-            logger.info("Updated student: %s", student_id)
-            print("Student updated successfully.")
-        else:
-            print("Unable to update student.")
+            # Validate new email only if the user entered one
+            if email and "@" not in email:
+                print("Please enter a valid email address.")
+                return
+
+            # Validate new year level only if the user entered one
+            if year_level and not year_level.isdigit():
+                print("Year level must be a number.")
+                return
+
+            update_data = {
+                "name": name if name else student["name"],
+                "email": email if email else student["email"],
+                "course": course if course else student["course"],
+                "year_level": (
+                    year_level
+                    if year_level
+                    else student["year_level"]
+                )
+            }
+
+            updated = self.student_service.update_student(
+                student_id,
+                update_data
+            )
+
+            if updated:
+                logger.info("Updated student: %s", student_id)
+                print("Student updated successfully.")
+            else:
+                print("Unable to update student.")
+
+        except Exception as e:
+            logger.error("Error updating student: %s", e)
+            print("Something went wrong while updating the student.")
 
     def delete_student(self):
         print("\n--- Delete Student ---")
 
-        student_id = input("Enter Student ID: ")
+        student_id = input("Enter Student ID: ").strip()
 
-        student = self.student_service.get_student(student_id)
-
-        if not student:
-            print("Student not found.")
+        if not student_id:
+            print("Student ID cannot be empty.")
             return
 
-        print("Student:", student["name"])
+        try:
+            student = self.student_service.get_student(student_id)
 
-        confirm = input("Are you sure you want to delete this student? (y/n): ")
+            if not student:
+                print("Student not found.")
+                return
 
-        if confirm.lower() == "y":
-            deleted = self.student_service.delete_student(student_id)
+            print("Student:", student["name"])
 
-            if deleted:
-                logger.info("Deleted student: %s", student_id)
-                print("Student deleted successfully.")
-        else:
-            print("Delete cancelled.")
+            confirm = input(
+                "Are you sure you want to delete this student? (y/n): "
+            ).strip().lower()
+
+            if confirm == "y":
+                deleted = self.student_service.delete_student(student_id)
+
+                if deleted:
+                    logger.info("Deleted student: %s", student_id)
+                    print("Student deleted successfully.")
+                else:
+                    print("Unable to delete student.")
+
+            elif confirm == "n":
+                print("Delete cancelled.")
+
+            else:
+                print("Please enter y or n.")
+
+        except Exception as e:
+            logger.error("Error deleting student: %s", e)
+            print("Something went wrong while deleting the student.")
 
     def run(self):
         while True:
             self.display_menu()
 
-            choice = input("Enter your choice: ")
+            choice = input("Enter your choice: ").strip()
 
             if choice == "1":
                 self.add_student()
@@ -191,6 +266,7 @@ class StudentInformationSystem:
 
             elif choice == "6":
                 print("Goodbye!")
+                logger.info("Application closed.")
                 break
 
             else:
