@@ -1,37 +1,77 @@
 # Student Information System
 
-A simple Python-based Student Information System that allows users to
-manage student records using a JSON file.
+A simple Python-based Student Information System for managing student records. The system allows users to add, view, update, and delete student information. Student data is stored in a JSON file.
 
 ## Features
 
-- Add student
-- View all students
-- View student by ID
-- Update student
-- Delete student
-- JSON data storage
-- Error handling
-- Logging
-
-## Project Structure
-
-The project is divided into models, services, data, configuration,
-and logs to keep the code organized.
-
-## How to Run
-
-1. Download or clone the repository.
-2. Open the project folder in VS Code.
-3. Open the terminal.
-4. Run:
-
-python src/main.py
+* Add student
+* View all students
+* View student by ID
+* Update student information
+* Delete student
+* Basic input validation
+* JSON data storage
+* Error handling
+* Activity logging
+* Configuration file
 
 ## Technologies Used
 
-- Python
-- JSON
-- Git
-- GitHub
-- Visual Studio Code
+* Python
+* JSON
+* Git
+* GitHub
+* Visual Studio Code
+
+The project uses Python standard libraries, so no external packages are required.
+
+## Project Structure
+
+```text
+student-info-system/
+├── src/
+│   ├── models/
+│   │   ├── __init__.py
+│   │   └── student.py
+│   ├── services/
+│   │   ├── __init__.py
+│   │   └── student_service.py
+│   └── main.py
+├── data/
+│   └── students.json
+├── config/
+│   └── config.json
+├── logs/
+│   └── app.log
+├── tests/
+├── README.md
+├── requirements.txt
+└── .gitignore
+```
+
+## How to Run
+
+1. Clone or download the repository.
+2. Open the project folder in Visual Studio Code.
+3. Open the terminal.
+4. Run:
+
+```text
+python src/main.py
+```
+
+5. Choose an option from the menu.
+
+## Git and GitHub
+
+The project uses Git for version control and GitHub for repository hosting.
+
+The `main` branch contains the main project, while the `feature/student-crud` branch was used to develop and improve the student CRUD functions.
+
+## Challenges Faced
+
+One challenge was organizing the project into separate files for the student model, student services, configuration, and main program. Another challenge was learning how to use Git branches and push the project to GitHub. Input validation and handling errors also required testing to make sure the program responds properly to incorrect input.
+
+## Author
+
+Rg Gabriel G. Manuel
