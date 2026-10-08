@@ -68,6 +68,10 @@ The project uses Git for version control and GitHub for repository hosting.
 
 The `main` branch contains the main project, while the `feature/student-crud` branch was used to develop and improve the student CRUD functions.
 
+## Challenges Faced
+
+One challenge was organizing the project into separate files for the student model, student services, configuration, and main program. Another challenge was learning how to use Git branches and push the project to GitHub. Input validation and handling errors also required testing to make sure the program responds properly to incorrect input.
+
 ## Author
 
 Rg Gabriel G. Manuel
